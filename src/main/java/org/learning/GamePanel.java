@@ -8,6 +8,8 @@ import java.util.Random;
 
 public class GamePanel extends JPanel implements ActionListener {
 
+    JFrame frame = new JFrame();
+    JPanel panel = new JPanel();
     static final int SCREEN_WIDTH = 600;
     static final int SCREEN_HEIGHT = 600;
     static final int UNIT_SIZE = 25;
@@ -23,6 +25,17 @@ public class GamePanel extends JPanel implements ActionListener {
     boolean running = false;
     Timer timer;
     Random random;
+
+    public void createGUI() {
+        panel.add(new GamePanel());
+        frame.setTitle("Snake Game");
+        frame.add(panel);
+        frame.setResizable(false);
+        frame.pack();
+        frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
 
     GamePanel() {
         random = new Random();
@@ -40,6 +53,7 @@ public class GamePanel extends JPanel implements ActionListener {
         timer.start();
     }
 
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -47,6 +61,7 @@ public class GamePanel extends JPanel implements ActionListener {
     }
 
     public void draw(Graphics g) {
+
         if (running) {
             for (int i = 0; i < SCREEN_HEIGHT / UNIT_SIZE; i++) {
                 g.drawLine(i * UNIT_SIZE, 0, i * UNIT_SIZE, SCREEN_HEIGHT);
@@ -68,10 +83,10 @@ public class GamePanel extends JPanel implements ActionListener {
             g.setColor(Color.orange);
             g.setFont(new Font("Ink Free", Font.BOLD, 40));
             FontMetrics metrics = getFontMetrics(g.getFont());
-            g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten))/2, g.getFont().getSize());
-        }
-        else {
+            g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - metrics.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
+        } else {
             gameOver(g);
+
         }
     }
 
@@ -137,12 +152,18 @@ public class GamePanel extends JPanel implements ActionListener {
         g.setColor(Color.orange);
         g.setFont(new Font("Ink Free", Font.BOLD, 40));
         FontMetrics scoreMetrics = getFontMetrics(g.getFont());
-        g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - scoreMetrics.stringWidth("Score: " + applesEaten))/2, g.getFont().getSize());
+        g.drawString("Score: " + applesEaten, (SCREEN_WIDTH - scoreMetrics.stringWidth("Score: " + applesEaten)) / 2, g.getFont().getSize());
 
         g.setColor(Color.red);
         g.setFont(new Font("Ink Free", Font.BOLD, 75));
         FontMetrics metrics = getFontMetrics(g.getFont());
-        g.drawString("GAME OVER", (SCREEN_WIDTH - metrics.stringWidth("GAME OVER"))/2, SCREEN_HEIGHT /2);
+        g.drawString("GAME OVER", (SCREEN_WIDTH - metrics.stringWidth("GAME OVER")) / 2, SCREEN_HEIGHT / 2);
+
+        g.setColor(Color.white);
+        g.setFont(new Font("Ink Free", Font.BOLD, 25));
+        FontMetrics newGameMetrics = getFontMetrics(g.getFont());
+        g.drawString("For NEW GAME press Enter", (SCREEN_WIDTH - newGameMetrics.stringWidth("For NEW GAME press Enter")) / 2, 500);
+
     }
 
     @Override
@@ -153,6 +174,19 @@ public class GamePanel extends JPanel implements ActionListener {
             checkCollisions();
         }
         repaint();
+    }
+
+    public void closeRunningWindow(KeyEvent e) {
+        JComponent component = (JComponent) e.getSource();
+        Window win = SwingUtilities.getWindowAncestor(component);
+        win.dispose();
+    }
+
+    public void startAgain() {
+        EventQueue.invokeLater(() -> {
+            GamePanel gamePanel = new GamePanel();
+            gamePanel.createGUI();
+        });
     }
 
     public class MyKeyAdapter extends KeyAdapter {
@@ -180,7 +214,12 @@ public class GamePanel extends JPanel implements ActionListener {
                         direction = 'D';
                     }
                 }
+                case KeyEvent.VK_ENTER -> {
+                    closeRunningWindow(e);
+                    startAgain();
+                }
             }
         }
     }
 }
+
